@@ -24,6 +24,21 @@ apt-get update
 apt-get install -y --fix-broken git curl
 
 
+# --- Kernel Module Setup ---
+echo "  ---------> Enabling required kernel modules for Redroid <---------  "
+# Load modules for the current session
+echo "  --> Loading binder_linux and ashmem_linux for this session..."
+modprobe binder_linux || echo "binder_linux module failed to load or was already loaded."
+modprobe ashmem_linux || echo "ashmem_linux module failed to load or was already loaded."
+
+# Ensure modules load on boot
+cat > /etc/modules-load.d/redroid.conf << EOF
+binder_linux
+ashmem_linux
+EOF
+echo "  --> Configured modules to load on boot."
+
+
 echo "  ---------> Cleaning up previous installation <---------  "
 rm -rf "$PROJECT_DIR"
 
