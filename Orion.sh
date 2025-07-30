@@ -18,11 +18,12 @@ export CALLING_USER="${1:-$USER}" # The user who ran sudo
 
 
 # --- Script Paths ---
-SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+ORION_BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPTS_DIR="${ORION_BASE_DIR}/scripts"
 DOCKER_SCRIPT="${SCRIPTS_DIR}/docker.sh"
 RFO_SCRIPT="${SCRIPTS_DIR}/rfo.sh"
 CLI_SCRIPT="${SCRIPTS_DIR}/Orion-cli.sh"
-SERVICE_FILE_SRC="./Orion.service"
+SERVICE_FILE_SRC="${ORION_BASE_DIR}/Orion.service"
 SERVICE_FILE_DEST="/etc/systemd/system/orion.service"
 
 
