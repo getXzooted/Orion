@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Orion-cli.sh
-# Creates the 'orion' command line interface.
+# Creates the 'orion' command line interface for Waydroid.
 
 
 set -e
@@ -12,22 +12,27 @@ set -e
 
 echo "  --> Creating 'orion' command..."
 
+# Create the shared directory if it doesn't exist, and set permissions
+WAYDROID_SHARED_DIR="${CALLING_USER_HOME}/waydroid/data/media/0"
+mkdir -p "${WAYDROID_SHARED_DIR}"
+chown -R "${CALLING_USER}:${CALLING_USER}" "${CALLING_USER_HOME}/waydroid"
 
 
 # Create the main user-facing command
 cat > "$CLI_COMMAND_PATH" << EOF
 #!/bin/bash
 #
-# Orion CLI - RFO-BASIC! Runner
+# Orion CLI - RFO-BASIC! Runner for Waydroid
 
 
 set -e
 
 
-CONTAINER_NAME="${CONTAINER_NAME}"
-PACKAGE="${RFO_BASIC_PACKAGE}"
-ACTIVITY="${RFO_BASIC_ACTIVITY}"
 SCRIPT_FILE="\$1"
+CALLING_USER_HOME=\$(getent passwd "\$(whoami)" | cut -d: -f6)
+WAYDROID_SHARED_DIR="\${CALLING_USER_HOME}/waydroid/data/media/0"
+RFO_PACKAGE="com.rfo.basic"
+RFO_ACTIVITY="com.rfo.basic.Basic"
 
 
 if [ -z "\$SCRIPT_FILE" ]; then
@@ -42,30 +47,30 @@ if [ ! -f "\$SCRIPT_FILE" ]; then
 fi
 
 
-# Check if container is running
-if ! docker ps --format '{{.Names}}' | grep -q "^\${CONTAINER_NAME}\$"; then
-    echo "Orion container is not running. Starting it with 'sudo systemctl start orion'..."
-    sudo systemctl start orion
-    echo "Waiting for container to settle..."
-    sleep 15
+# Ensure Waydroid session is running
+if ! waydroid status &> /dev/null | grep -q "RUNNING"; then
+    echo "--> Starting Waydroid session..."
+    waydroid session start &
+    sleep 10 # Give the session time to start
 fi
 
+
 FILENAME=\$(basename -- "\$SCRIPT_FILE")
-CONTAINER_SCRIPT_PATH="/data/local/tmp/\$FILENAME"
+HOST_SCRIPT_PATH="\${WAYDROID_SHARED_DIR}/\${FILENAME}"
+ANDROID_SCRIPT_PATH="file:///storage/emulated/0/\${FILENAME}"
 
 
-echo "--> Copying '\$FILENAME' to the Android container"
-docker cp "\$SCRIPT_FILE" "\${CONTAINER_NAME}:\${CONTAINER_SCRIPT_PATH}"
+echo "--> Copying '\$FILENAME' to Waydroid's shared storage..."
+cp "\$SCRIPT_FILE" "\$HOST_SCRIPT_PATH"
 
 
 echo "--> Executing script with RFO-BASIC!"
-docker exec "\${CONTAINER_NAME}" adb shell am start -n "\${PACKAGE}/\${ACTIVITY}" -d "file://\${CONTAINER_SCRIPT_PATH}"
+waydroid app launch "\${RFO_PACKAGE}" -d "\${ANDROID_SCRIPT_PATH}"
 
 
 echo "--> NOTE: Output will appear in the RFO-BASIC! app window."
-echo "    Connect with a VNC client to localhost:5555 to see the GUI."
+echo "    Waydroid can be viewed with a VNC client or on the physical display."
 EOF
-
 
 
 # Make the command executable
