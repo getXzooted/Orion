@@ -1,0 +1,12 @@
+[Unit]
+Description=Orion Android Container for RFO-BASIC!
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a %%CONTAINER_NAME%%
+ExecStop=/usr/bin/docker stop -t 2 %%CONTAINER_NAME%%
+
+[Install]
+WantedBy=multi-user.target
