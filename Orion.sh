@@ -8,9 +8,9 @@ set -e
 
 
 # --- Main Configuration ---
-export DOCKER_IMAGE="redroid/redroid:11.0.0-arm64"
+export DOCKER_IMAGE="redroid/redroid:10.0.0-arm64"
 export CONTAINER_NAME="orion-android"
-export RFO_BASIC_APK_URL="https://github.com/RFO-BASIC/Basic/releases/download/v01.92/BASIC_v01.92.apk"
+export RFO_BASIC_APK_URL="https://github.com/RFO-BASIC/Basic/releases/download/v01.91/BASIC_v01.91.apk"
 export RFO_BASIC_PACKAGE="com.rfo.basic"
 export RFO_BASIC_ACTIVITY="com.rfo.basic.Basic"
 export CLI_COMMAND_PATH="/usr/local/bin/orion"
